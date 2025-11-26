@@ -1,0 +1,8 @@
+{
+  "name": "cron-job-bypass-sleep",
+  "version": "1.0.0",
+  "description": "Netlify cron job to ping Render every 5 minutes",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
