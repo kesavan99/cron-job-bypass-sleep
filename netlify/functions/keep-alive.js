@@ -1,7 +1,8 @@
 const fetch = require("node-fetch");
 
-exports.handler = async () => {
+async function pingRender() {
   try {
+    console.log("Starting ping to Render...");
     const res = await fetch("https://skill-mint-server.onrender.com/skill-mint/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -17,13 +18,15 @@ exports.handler = async () => {
 
     return {
       statusCode: 200,
-      body: "Ping sent successfully"
+      body: JSON.stringify({ success: true, data })
     };
   } catch (err) {
-    console.error("Error:", err);
+    console.error("Ping error:", err.message);
     return {
       statusCode: 500,
-      body: "Ping failed"
+      body: JSON.stringify({ error: err.message })
     };
   }
-};
+}
+
+exports.handler = pingRender;
