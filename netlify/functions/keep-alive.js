@@ -1,31 +1,27 @@
 const fetch = require("node-fetch");
 
-async function pingRender() {
-for(let i=0;i<10;i++){
+exports.handler = async () => {
   try {
-    console.log("Starting ping to Render..."+i);
-    const res = await fetch("https://skill-mint-server.onrender.com/skill-mint/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: "dummy@gmail.com",
-        password: "efrgdhngfgf",
-        newOne: false
-      })
+    console.log("Starting GET request to Render...");
+    
+    const res = await fetch("https://skill-mint-server.onrender.com/", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
     });
 
     const data = await res.json();
     console.log("Render response status:", res.status);
     console.log("Ping response:", data);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true, renderStatus: res.status, data })
+    };
   } catch (err) {
     console.error("Ping error:", err.message);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message })
+    };
   }
-
-  setTimeout(function() {
-  console.log("This message appears after 1 second.");
-}, 4000);
-
-}
-}
-
-exports.handler = pingRender;
+};

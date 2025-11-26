@@ -2,5 +2,5 @@
 directory = "netlify/functions"
 
 [[scheduled.functions]]
-schedule = "*/5 * * * *"
+schedule = "*/2 * * * *"
 function = "keep-alive"
