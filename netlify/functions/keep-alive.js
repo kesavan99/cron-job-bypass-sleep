@@ -4,7 +4,7 @@ exports.handler = async () => {
   try {
     console.log("Starting GET request to Render...");
     
-    const res = await fetch("https://skill-mint-server.onrender.com/", {
+    const res = await fetch("https://api.skillhubtools.store/", {
       method: "GET",
       headers: { "Content-Type": "application/json" }
     });
