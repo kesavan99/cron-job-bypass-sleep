@@ -1,79 +1,69 @@
 const fetch = require("node-fetch");
 
-const ENDPOINTS = [
-  {
-    name: "SkillMint Server",
-    url: "https://skill-mint-server.onrender.com/"
-  },
-  {
-    name: "ATS Analysis API",
-    url: "https://ats-analysis.onrender.com/api/v1/health"
-  }
-];
+// Timeout utility function
+const fetchWithTimeout = (url, timeout = 10000) => {
+  return Promise.race([
+    fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    }),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timeout')), timeout)
+    )
+  ]);
+};
 
 exports.handler = async () => {
+  const results = {
+    server: { status: 'pending', data: null, error: null },
+    ats: { status: 'pending', data: null, error: null }
+  };
+
   try {
-    console.log("Starting health check for all services...");
-    
-    const results = await Promise.all(
-      ENDPOINTS.map(async (endpoint) => {
-        try {
-          console.log(`Pinging ${endpoint.name} at ${endpoint.url}...`);
-          
-          const res = await fetch(endpoint.url, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" }
-          });
+    // Hit SkillMint Server API
+    console.log("Pinging SkillMint Server...");
+    try {
+      const serverRes = await fetchWithTimeout("https://skill-mint-server.onrender.com/", 10000);
+      const serverData = await serverRes.json();
+      results.server.status = serverRes.status;
+      results.server.data = serverData;
+      console.log("Server responded:", serverRes.status);
+    } catch (err) {
+      console.error("Server ping error:", err.message);
+      results.server.status = 'error';
+      results.server.error = err.message;
+    }
 
-          const data = await res.json();
-          console.log(`${endpoint.name} response status:`, res.status);
-          console.log(`${endpoint.name} response:`, data);
-
-          return {
-            service: endpoint.name,
-            url: endpoint.url,
-            status: res.status,
-            success: res.ok,
-            data: data,
-            timestamp: new Date().toISOString()
-          };
-        } catch (err) {
-          console.error(`Error pinging ${endpoint.name}:`, err.message);
-          return {
-            service: endpoint.name,
-            url: endpoint.url,
-            status: 500,
-            success: false,
-            error: err.message,
-            timestamp: new Date().toISOString()
-          };
-        }
-      })
-    );
-
-    const allSuccess = results.every(r => r.success);
-    const summary = {
-      timestamp: new Date().toISOString(),
-      totalServices: ENDPOINTS.length,
-      successCount: results.filter(r => r.success).length,
-      failureCount: results.filter(r => !r.success).length,
-      allSuccess: allSuccess,
-      results: results
-    };
-
-    console.log("Health check complete:", summary);
+    // Hit ATS API Health Check
+    console.log("Pinging ATS API...");
+    try {
+      const atsRes = await fetchWithTimeout("https://ats-analysis.onrender.com/api/v1/health", 10000);
+      const atsData = await atsRes.json();
+      results.ats.status = atsRes.status;
+      results.ats.data = atsData;
+      console.log("ATS responded:", atsRes.status);
+    } catch (err) {
+      console.error("ATS ping error:", err.message);
+      results.ats.status = 'error';
+      results.ats.error = err.message;
+    }
 
     return {
-      statusCode: allSuccess ? 200 : 207,
-      body: JSON.stringify(summary)
+      statusCode: 200,
+      body: JSON.stringify({
+        success: true,
+        timestamp: new Date().toISOString(),
+        results: results
+      })
     };
   } catch (err) {
-    console.error("Keep-alive function error:", err.message);
+    console.error("General error:", err.message);
     return {
       statusCode: 500,
       body: JSON.stringify({ 
+        success: false,
         error: err.message,
-        timestamp: new Date().toISOString()
+        results: results
       })
     };
   }
