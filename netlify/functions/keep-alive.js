@@ -37,7 +37,7 @@ exports.handler = async () => {
     // Hit ATS API Health Check
     console.log("Pinging ATS API...");
     try {
-      const atsRes = await fetchWithTimeout("https://ats-analysis.onrender.com/api/v1/health", 10000);
+      const atsRes = await fetchWithTimeout("https://python-1-m2da.onrender.com/api/v1", 10000);
       const atsData = await atsRes.json();
       results.ats.status = atsRes.status;
       results.ats.data = atsData;
