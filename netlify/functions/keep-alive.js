@@ -23,7 +23,7 @@ exports.handler = async () => {
     // Hit SkillMint Server API
     console.log("Pinging SkillMint Server...");
     try {
-      const serverRes = await fetchWithTimeout("https://skill-mint-server.onrender.com/", 10000);
+      const serverRes = await fetchWithTimeout("https://api.skillhubtools.store/", 10000);
       const serverData = await serverRes.json();
       results.server.status = serverRes.status;
       results.server.data = serverData;
