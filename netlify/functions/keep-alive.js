@@ -33,21 +33,6 @@ exports.handler = async () => {
       results.server.status = 'error';
       results.server.error = err.message;
     }
-
-    // Hit ATS API Health Check
-    console.log("Pinging ATS API...");
-    try {
-      const atsRes = await fetchWithTimeout("https://python-1-m2da.onrender.com/api/v1", 10000);
-      const atsData = await atsRes.json();
-      results.ats.status = atsRes.status;
-      results.ats.data = atsData;
-      console.log("ATS responded:", atsRes.status);
-    } catch (err) {
-      console.error("ATS ping error:", err.message);
-      results.ats.status = 'error';
-      results.ats.error = err.message;
-    }
-
     return {
       statusCode: 200,
       body: JSON.stringify({
